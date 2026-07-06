@@ -8,6 +8,7 @@ from pmx.commands import backup, context, ct, node, pool, setup, storage, task, 
 from pmx.config import ConfigError
 from pmx.render import err_console
 from pmx.state import app_state
+from pmx.tui.app import run_tui
 
 app = typer.Typer(
     name="pmx",
@@ -27,6 +28,12 @@ app.add_typer(task.app, name="task", help="Monitor cluster tasks.")
 app.command(name="setup", help="Interactive first-run configuration.")(setup.run_setup)
 
 
+@app.command("tui")
+def tui() -> None:
+    """Launch the interactive k9s-style dashboard."""
+    run_tui()
+
+
 def _version_callback(value: bool) -> None:
     """Print the version and exit when --version is passed."""
     if value:
@@ -42,14 +49,15 @@ def main(
     output: str = typer.Option(
         "table", "--output", "-o", help="Output format: table or json."
     ),
-    yes: bool = typer.Option(
-        False, "--yes", "-y", help="Skip confirmation prompts."
-    ),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Skip confirmation prompts."),
     no_wait: bool = typer.Option(
         False, "--no-wait", help="Do not wait for tasks; print the UPID and return."
     ),
     version: bool = typer.Option(
-        False, "--version", callback=_version_callback, is_eager=True,
+        False,
+        "--version",
+        callback=_version_callback,
+        is_eager=True,
         help="Show version and exit.",
     ),
 ) -> None:

@@ -19,6 +19,8 @@ subcommand; omit an argument and you get an interactive fuzzy picker instead.
   `--no-wait` prints the UPID, and `pmx task ls/log/wait` monitors anything
 - **Safe by default** — destructive ops prompt; `destroy` requires typing the name or ID;
   `--yes` skips prompts for scripts
+- **Live dashboard** — `pmx tui` opens a k9s-style Textual dashboard with nodes, VMs,
+  CTs, and tasks panes that refresh automatically
 
 ## Requirements
 
@@ -103,6 +105,25 @@ pmx vm ls -o json | jq '.[] | select(.status=="running") | .vmid'
 pmx -y vm stop 101 --no-wait
 ```
 
+## TUI dashboard
+
+```bash
+pmx tui                    # uses the default context
+pmx --context other tui    # or any named context
+```
+
+A k9s-style dashboard with four panes that refresh every 5 seconds:
+
+| Key                   | Action                                          |
+| --------------------- | ----------------------------------------------- |
+| `1` / `2` / `3` / `4` | Switch to Nodes / VMs / CTs / Tasks             |
+| `↑` / `↓`             | Move the row cursor                             |
+| `s`                   | Start the selected VM/CT (with confirmation)    |
+| `t`                   | Shutdown the selected VM/CT (with confirmation) |
+| `x`                   | Stop the selected VM/CT (with confirmation)     |
+| `r`                   | Refresh now                                     |
+| `q`                   | Quit                                            |
+
 ## Shell completion
 
 ```bash
@@ -119,7 +140,7 @@ uv run ruff check .
 
 ## Roadmap
 
-- **Phase 2** — `pmx tui`: a k9s-style live dashboard (Textual)
+- ~~**Phase 2** — `pmx tui`: a k9s-style live dashboard (Textual)~~ ✅
 - **Phase 3** — `vm create` / `ct create` wizards, ISO and container template downloads
 
 ## License
