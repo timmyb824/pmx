@@ -28,8 +28,12 @@ def ls() -> None:
         print_table(
             rows,
             [
-                ("Node", "node"), ("Status", "status"), ("CPU", "cpu"),
-                ("Memory", "mem"), ("Max Memory", "maxmem"), ("Uptime", "uptime"),
+                ("Node", "node"),
+                ("Status", "status"),
+                ("CPU", "cpu"),
+                ("Memory", "mem"),
+                ("Max Memory", "maxmem"),
+                ("Uptime", "uptime"),
             ],
             title="Nodes",
             as_json=app_state.output_json,

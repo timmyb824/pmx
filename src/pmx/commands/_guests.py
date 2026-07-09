@@ -15,9 +15,7 @@ from pmx.tasks import run_and_wait
 VMID_ARG = typer.Argument(None, help="Guest VMID (interactive picker if omitted).")
 
 
-def _get_guest(
-    client: ProxmoxClient, kind: str, vmid: int | None, action: str
-) -> Guest:
+def _get_guest(client: ProxmoxClient, kind: str, vmid: int | None, action: str) -> Guest:
     """Resolve a guest by VMID or fall back to an interactive picker."""
     noun = "VM" if kind == "qemu" else "container"
     if vmid is None:
@@ -25,18 +23,14 @@ def _get_guest(
     return resolve_guest(client, kind, vmid)
 
 
-def _simple_status_command(
-    kind: str, action: str, description: str
-) -> Callable[..., None]:
+def _simple_status_command(kind: str, action: str, description: str) -> Callable[..., None]:
     """Build a command that POSTs to a guest's status endpoint and waits for the task."""
 
     def command(vmid: int | None = VMID_ARG) -> None:
         with get_client() as client:
             guest = _get_guest(client, kind, vmid, action)
             upid = client.post(f"{guest.base_path}/status/{action}")
-            run_and_wait(
-                client, upid, console, f"{action} {guest.label}", app_state.no_wait
-            )
+            run_and_wait(client, upid, console, f"{action} {guest.label}", app_state.no_wait)
 
     command.__doc__ = description
     return command
@@ -67,9 +61,7 @@ def _build_snapshot_app(kind: str) -> typer.Typer:
     def snap_create(
         vmid: int | None = VMID_ARG,
         name: str = typer.Option(..., "--name", "-n", help="Snapshot name."),
-        description: str = typer.Option(
-            "", "--description", "-d", help="Snapshot description."
-        ),
+        description: str = typer.Option("", "--description", "-d", help="Snapshot description."),
     ) -> None:
         """Create a snapshot."""
         with get_client() as client:
@@ -96,13 +88,9 @@ def _build_snapshot_app(kind: str) -> typer.Typer:
         with get_client() as client:
             guest = _get_guest(client, kind, vmid, "delete a snapshot from")
             snapname = name or pick_snapshot(client, guest, "Select snapshot to delete")
-            confirm_action(
-                f"Delete snapshot '{snapname}' of {guest.label}", app_state.yes
-            )
+            confirm_action(f"Delete snapshot '{snapname}' of {guest.label}", app_state.yes)
             upid = client.delete(f"{guest.base_path}/snapshot/{snapname}")
-            run_and_wait(
-                client, upid, console, f"delete snapshot {snapname}", app_state.no_wait
-            )
+            run_and_wait(client, upid, console, f"delete snapshot {snapname}", app_state.no_wait)
 
     @snap.command("rollback")
     def snap_rollback(
@@ -112,17 +100,13 @@ def _build_snapshot_app(kind: str) -> typer.Typer:
         """Roll a guest back to a snapshot."""
         with get_client() as client:
             guest = _get_guest(client, kind, vmid, "roll back")
-            snapname = name or pick_snapshot(
-                client, guest, "Select snapshot to roll back to"
-            )
+            snapname = name or pick_snapshot(client, guest, "Select snapshot to roll back to")
             confirm_action(
                 f"Roll back {guest.label} to snapshot '{snapname}' (current state is lost)",
                 app_state.yes,
             )
             upid = client.post(f"{guest.base_path}/snapshot/{snapname}/rollback")
-            run_and_wait(
-                client, upid, console, f"rollback to {snapname}", app_state.no_wait
-            )
+            run_and_wait(client, upid, console, f"rollback to {snapname}", app_state.no_wait)
 
     return snap
 
@@ -131,9 +115,7 @@ def build_guest_app(kind: str) -> typer.Typer:
     """Build the full command group for a guest kind ('qemu' or 'lxc')."""
     noun = "VM" if kind == "qemu" else "container"
     app = typer.Typer(no_args_is_help=True)
-    app.add_typer(
-        _build_snapshot_app(kind), name="snapshot", help=f"Manage {noun} snapshots."
-    )
+    app.add_typer(_build_snapshot_app(kind), name="snapshot", help=f"Manage {noun} snapshots.")
 
     @app.command("ls")
     def ls() -> None:
@@ -181,9 +163,7 @@ def build_guest_app(kind: str) -> typer.Typer:
         with get_client() as client:
             guest = _get_guest(client, kind, vmid, "inspect")
             cfg = client.get(f"{guest.base_path}/config")
-            print_kv(
-                cfg, title=f"Config — {guest.label}", as_json=app_state.output_json
-            )
+            print_kv(cfg, title=f"Config — {guest.label}", as_json=app_state.output_json)
 
     app.command("start")(_simple_status_command(kind, "start", f"Start a {noun}."))
     app.command("stop")(_simple_status_command(kind, "stop", f"Hard-stop a {noun}."))
@@ -194,9 +174,7 @@ def build_guest_app(kind: str) -> typer.Typer:
     if kind == "qemu":
         app.command("reset")(_simple_status_command(kind, "reset", "Hard-reset a VM."))
         app.command("suspend")(_simple_status_command(kind, "suspend", "Suspend a VM."))
-        app.command("resume")(
-            _simple_status_command(kind, "resume", "Resume a suspended VM.")
-        )
+        app.command("resume")(_simple_status_command(kind, "resume", "Resume a suspended VM."))
 
     @app.command("rename")
     def rename(
@@ -222,9 +200,7 @@ def build_guest_app(kind: str) -> typer.Typer:
             guest = _get_guest(client, kind, vmid, "destroy")
             confirm_destroy(guest.label, f"{guest.vmid}|{guest.name}", app_state.yes)
             upid = client.delete(guest.base_path, purge=1 if purge else None)
-            run_and_wait(
-                client, upid, console, f"destroy {guest.label}", app_state.no_wait
-            )
+            run_and_wait(client, upid, console, f"destroy {guest.label}", app_state.no_wait)
 
     @app.command("clone")
     def clone(
@@ -232,18 +208,10 @@ def build_guest_app(kind: str) -> typer.Typer:
         newid: int | None = typer.Option(
             None, "--newid", help="VMID for the clone (default: next free)."
         ),
-        name: str | None = typer.Option(
-            None, "--name", "-n", help="Name for the clone."
-        ),
-        target: str | None = typer.Option(
-            None, "--target", help="Target node for the clone."
-        ),
-        full: bool = typer.Option(
-            False, "--full", help="Full clone instead of linked clone."
-        ),
-        storage: str | None = typer.Option(
-            None, "--storage", help="Target storage (full clone)."
-        ),
+        name: str | None = typer.Option(None, "--name", "-n", help="Name for the clone."),
+        target: str | None = typer.Option(None, "--target", help="Target node for the clone."),
+        full: bool = typer.Option(False, "--full", help="Full clone instead of linked clone."),
+        storage: str | None = typer.Option(None, "--storage", help="Target storage (full clone)."),
     ) -> None:
         """Clone a guest."""
         with get_client() as client:
@@ -270,17 +238,13 @@ def build_guest_app(kind: str) -> typer.Typer:
     def migrate(
         vmid: int | None = VMID_ARG,
         target: str | None = typer.Option(None, "--target", help="Target node."),
-        online: bool = typer.Option(
-            False, "--online", help="Live migration (running guests)."
-        ),
+        online: bool = typer.Option(False, "--online", help="Live migration (running guests)."),
     ) -> None:
         """Migrate a guest to another node."""
         with get_client() as client:
             guest = _get_guest(client, kind, vmid, "migrate")
             dest = target or pick_node(client, "Select target node")
-            confirm_action(
-                f"Migrate {guest.label} from {guest.node} to {dest}", app_state.yes
-            )
+            confirm_action(f"Migrate {guest.label} from {guest.node} to {dest}", app_state.yes)
             online_key = "online" if kind == "qemu" else "restart"
             params = {"target": dest, online_key: 1 if online else None}
             upid = client.post(f"{guest.base_path}/migrate", **params)
@@ -295,9 +259,7 @@ def build_guest_app(kind: str) -> typer.Typer:
     @app.command("backup")
     def backup(
         vmid: int | None = VMID_ARG,
-        storage: str | None = typer.Option(
-            None, "--storage", "-s", help="Target backup storage."
-        ),
+        storage: str | None = typer.Option(None, "--storage", "-s", help="Target backup storage."),
         mode: str = typer.Option(
             "snapshot", "--mode", help="Backup mode: snapshot, suspend, or stop."
         ),
@@ -314,8 +276,6 @@ def build_guest_app(kind: str) -> typer.Typer:
                 mode=mode,
                 **({"notes-template": notes} if notes else {}),
             )
-            run_and_wait(
-                client, upid, console, f"backup {guest.label}", app_state.no_wait
-            )
+            run_and_wait(client, upid, console, f"backup {guest.label}", app_state.no_wait)
 
     return app

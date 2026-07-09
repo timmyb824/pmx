@@ -29,8 +29,11 @@ def ls() -> None:
     print_table(
         rows,
         [
-            ("Name", "name"), ("Default", "default"), ("Endpoints", "endpoints"),
-            ("User", "user"), ("TLS", "tls"),
+            ("Name", "name"),
+            ("Default", "default"),
+            ("Endpoints", "endpoints"),
+            ("User", "user"),
+            ("TLS", "tls"),
         ],
         title="Contexts",
         as_json=app_state.output_json,

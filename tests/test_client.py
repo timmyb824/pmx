@@ -20,9 +20,7 @@ def _make_context() -> Context:
 
 def _client_with_handler(handler) -> ProxmoxClient:
     """Build a ProxmoxClient backed by a MockTransport."""
-    return ProxmoxClient(
-        _make_context(), "s3cr3t", transport=httpx.MockTransport(handler)
-    )
+    return ProxmoxClient(_make_context(), "s3cr3t", transport=httpx.MockTransport(handler))
 
 
 class TestSplitEndpoint:
@@ -59,9 +57,7 @@ class TestProxmoxClient:
         def handler(request: httpx.Request) -> httpx.Response:
             if request.url.path.endswith("/version"):
                 return httpx.Response(200, json={"data": {}})
-            return httpx.Response(
-                400, json={"errors": {"vmid": "VM 999 does not exist"}}
-            )
+            return httpx.Response(400, json={"errors": {"vmid": "VM 999 does not exist"}})
 
         client = _client_with_handler(handler)
         with pytest.raises(PMXError, match="VM 999 does not exist"):
@@ -74,9 +70,7 @@ class TestProxmoxClient:
         def handler(request: httpx.Request) -> httpx.Response:
             if request.method == "POST":
                 seen["body"] = request.content.decode()
-            return httpx.Response(
-                200, json={"data": "UPID:pve1:0:0:0:qmstart:101:u@p:"}
-            )
+            return httpx.Response(200, json={"data": "UPID:pve1:0:0:0:qmstart:101:u@p:"})
 
         client = _client_with_handler(handler)
         client.post("/nodes/pve1/qemu/101/clone", newid=102, target=None)

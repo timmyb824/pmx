@@ -46,9 +46,7 @@ def main(
     context_name: str | None = typer.Option(
         None, "--context", "-c", help="Context to use (overrides the default)."
     ),
-    output: str = typer.Option(
-        "table", "--output", "-o", help="Output format: table or json."
-    ),
+    output: str = typer.Option("table", "--output", "-o", help="Output format: table or json."),
     yes: bool = typer.Option(False, "--yes", "-y", help="Skip confirmation prompts."),
     no_wait: bool = typer.Option(
         False, "--no-wait", help="Do not wait for tasks; print the UPID and return."
