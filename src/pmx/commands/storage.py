@@ -38,8 +38,12 @@ def ls() -> None:
         print_table(
             rows,
             [
-                ("Storage", "storage"), ("Type", "type"), ("Status", "status"),
-                ("Used", "used"), ("Total", "total"), ("Nodes", "nodes"),
+                ("Storage", "storage"),
+                ("Type", "type"),
+                ("Status", "status"),
+                ("Used", "used"),
+                ("Total", "total"),
+                ("Nodes", "nodes"),
             ],
             title="Storages",
             as_json=app_state.output_json,
@@ -81,8 +85,11 @@ def content(
         print_table(
             rows,
             [
-                ("Volume", "volid"), ("Content", "content"), ("Format", "format"),
-                ("Size", "size"), ("VMID", "vmid"),
+                ("Volume", "volid"),
+                ("Content", "content"),
+                ("Format", "format"),
+                ("Size", "size"),
+                ("VMID", "vmid"),
             ],
             title=f"Content — {sid} on {target}",
             as_json=app_state.output_json,

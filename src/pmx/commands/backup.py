@@ -75,8 +75,12 @@ def ls(
         print_table(
             rows,
             [
-                ("Volume", "volid"), ("VMID", "vmid"), ("Storage", "storage"),
-                ("Format", "format"), ("Size", "size"), ("Notes", "notes"),
+                ("Volume", "volid"),
+                ("VMID", "vmid"),
+                ("Storage", "storage"),
+                ("Format", "format"),
+                ("Size", "size"),
+                ("Notes", "notes"),
             ],
             title="Backups",
             as_json=app_state.output_json,

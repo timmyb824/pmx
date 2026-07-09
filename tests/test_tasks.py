@@ -46,9 +46,7 @@ class TestWaitForTask:
 
     def test_success(self) -> None:
         """A task that ends with exitstatus OK completes silently."""
-        client = self._client(
-            [{"status": "running"}, {"status": "stopped", "exitstatus": "OK"}]
-        )
+        client = self._client([{"status": "running"}, {"status": "stopped", "exitstatus": "OK"}])
         wait_for_task(client, UPID_RAW, Console(quiet=True), poll_interval=0)
 
     def test_failure_raises(self) -> None:

@@ -19,8 +19,7 @@ def confirm_destroy(label: str, expected: str, yes: bool) -> None:
     if yes:
         return
     console.print(
-        f"[bold red]This will permanently destroy {label}.[/] "
-        f"Type its name or ID to confirm."
+        f"[bold red]This will permanently destroy {label}.[/] Type its name or ID to confirm."
     )
     answer = typer.prompt("Confirm").strip()
     parts = {p.strip() for p in expected.split("|")}

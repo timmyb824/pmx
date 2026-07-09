@@ -46,8 +46,13 @@ def ls(
         print_table(
             rows,
             [
-                ("UPID", "upid"), ("Type", "type"), ("ID", "id"), ("Node", "node"),
-                ("User", "user"), ("Started", "started"), ("Status", "status"),
+                ("UPID", "upid"),
+                ("Type", "type"),
+                ("ID", "id"),
+                ("Node", "node"),
+                ("User", "user"),
+                ("Started", "started"),
+                ("Status", "status"),
             ],
             title="Tasks",
             as_json=app_state.output_json,
