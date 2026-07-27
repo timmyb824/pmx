@@ -34,11 +34,11 @@ def _choose_tls_mode(ctx: Context) -> None:
     ).lower()
     if choice.startswith("p"):
         ctx.fingerprint = fingerprint
-        ctx.verify = False
         console.print("[green]Fingerprint pinned.[/]")
     else:
-        ctx.verify = False
         console.print("[yellow]TLS verification disabled for this context.[/]")
+
+    ctx.verify = False
 
 
 def run_setup() -> None:

@@ -4,10 +4,11 @@ Supports three TLS modes per context: full verification (default), verification
 disabled, and SHA-256 fingerprint pinning (trust-on-first-use).
 """
 
+import contextlib
 import hashlib
 import socket
 import ssl
-from typing import Any
+from typing import Any, Self
 
 import httpx
 
@@ -33,9 +34,11 @@ def get_server_fingerprint(endpoint: str, timeout: float = 10.0) -> str:
     context = ssl.create_default_context()
     context.check_hostname = False
     context.verify_mode = ssl.CERT_NONE
-    with socket.create_connection((host, port), timeout=timeout) as sock:
-        with context.wrap_socket(sock, server_hostname=host) as tls:
-            der = tls.getpeercert(binary_form=True)
+    with (
+        socket.create_connection((host, port), timeout=timeout) as sock,
+        context.wrap_socket(sock, server_hostname=host) as tls,
+    ):
+        der = tls.getpeercert(binary_form=True)
     if der is None:
         raise PMXError(f"could not retrieve certificate from {endpoint}")
     digest = hashlib.sha256(der).hexdigest().upper()
@@ -47,9 +50,11 @@ def check_endpoint_certificate(endpoint: str, timeout: float = 10.0) -> bool:
     host, port = split_endpoint(endpoint)
     context = ssl.create_default_context()
     try:
-        with socket.create_connection((host, port), timeout=timeout) as sock:
-            with context.wrap_socket(sock, server_hostname=host):
-                return True
+        with (
+            socket.create_connection((host, port), timeout=timeout) as sock,
+            context.wrap_socket(sock, server_hostname=host),
+        ):
+            return True
     except ssl.SSLError:
         return False
 
@@ -150,14 +155,12 @@ class ProxmoxClient:
     def _error_message(response: httpx.Response, method: str, path: str) -> str:
         """Build a readable error message from an API error response."""
         detail = response.reason_phrase
-        try:
+        with contextlib.suppress(ValueError):
             body = response.json()
             if errors := body.get("errors"):
                 detail = "; ".join(f"{k}: {v}" for k, v in errors.items())
             elif message := body.get("message"):
                 detail = str(message).strip()
-        except ValueError:
-            pass
         return f"{method} {path} failed ({response.status_code}): {detail}"
 
     def get(self, path: str, **params: Any) -> Any:
@@ -176,7 +179,7 @@ class ProxmoxClient:
         """DELETE a path and return its data (often a task UPID)."""
         return self.request("DELETE", path, **params)
 
-    def __enter__(self) -> "ProxmoxClient":
+    def __enter__(self) -> Self:
         """Enter a context manager, connecting lazily on first request."""
         return self
 

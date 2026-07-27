@@ -1,6 +1,6 @@
 """Task command group: list, inspect, tail, and wait on cluster tasks."""
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 import typer
 
@@ -14,10 +14,10 @@ UPID_ARG = typer.Argument(..., help="Task UPID.")
 
 
 def _fmt_time(value: object) -> str:
-    """Format a unix timestamp for display."""
+    """Format a unix timestamp as 'YYYY-MM-DD HH:MM:SS UTC'."""
     if not isinstance(value, (int, float)):
         return "-"
-    return datetime.fromtimestamp(value).strftime("%Y-%m-%d %H:%M:%S")
+    return datetime.fromtimestamp(value, tz=UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
 
 
 @app.command("ls")
@@ -39,7 +39,7 @@ def ls(
                 "node": t.get("node"),
                 "user": t.get("user"),
                 "started": _fmt_time(t.get("starttime")),
-                "status": t.get("status") or ("running" if not t.get("endtime") else "-"),
+                "status": t.get("status") or ("-" if t.get("endtime") else "running"),
             }
             for t in tasks
         ]

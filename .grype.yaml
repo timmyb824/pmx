@@ -1,0 +1,10 @@
+# EXAMPLES
+# ignore:
+#   - vulnerability: CVE-2024-12345
+#     reason: "Not yet patched upstream; tracked in issue #42"
+
+#   # Ignore a CVE only for a specific package
+#   - vulnerability: CVE-2023-99999
+#     package:
+#       name: some-package
+#       version: 1.2.3

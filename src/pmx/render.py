@@ -53,9 +53,7 @@ def _fmt(value: Any) -> str:
     """Format a cell value for table display."""
     if value is None:
         return "-"
-    if isinstance(value, float):
-        return f"{value:.2f}"
-    return str(value)
+    return f"{value:.2f}" if isinstance(value, float) else str(value)
 
 
 def fmt_bytes(value: Any) -> str:
