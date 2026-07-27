@@ -4,6 +4,7 @@ Supports three TLS modes per context: full verification (default), verification
 disabled, and SHA-256 fingerprint pinning (trust-on-first-use).
 """
 
+import contextlib
 import hashlib
 import socket
 import ssl
@@ -154,14 +155,12 @@ class ProxmoxClient:
     def _error_message(response: httpx.Response, method: str, path: str) -> str:
         """Build a readable error message from an API error response."""
         detail = response.reason_phrase
-        try:
+        with contextlib.suppress(ValueError):
             body = response.json()
             if errors := body.get("errors"):
                 detail = "; ".join(f"{k}: {v}" for k, v in errors.items())
             elif message := body.get("message"):
                 detail = str(message).strip()
-        except ValueError:
-            pass
         return f"{method} {path} failed ({response.status_code}): {detail}"
 
     def get(self, path: str, **params: Any) -> Any:
