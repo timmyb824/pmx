@@ -22,8 +22,7 @@ def _make_context(**overrides: object) -> Context:
         "user": "pmx@pve",
         "token_id": "pmx-token",
         "token_secret": "inline-secret",
-    }
-    defaults.update(overrides)
+    } | overrides
     return Context(**defaults)
 
 

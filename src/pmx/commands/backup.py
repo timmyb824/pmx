@@ -32,8 +32,7 @@ def _list_backups(client: ProxmoxClient, storage: str | None, vmid: int | None) 
             items = client.get(
                 f"/nodes/{node_name}/storage/{sid}/content", content="backup", vmid=vmid
             )
-            for item in items:
-                backups.append({**item, "node": node_name, "storage": sid})
+            backups.extend({**item, "node": node_name, "storage": sid} for item in items)
     return sorted(backups, key=lambda b: (b.get("vmid") or 0, b.get("ctime") or 0))
 
 
@@ -43,7 +42,7 @@ def _pick_backup(backups: list[dict], message: str) -> dict:
         raise PMXError("no backups found")
     choices = [
         {
-            "name": f"{b.get('vmid', '-'):<6} {str(b.get('volid', '')):<70} {fmt_bytes(b.get('size'))}",
+            "name": f"{b.get('vmid', '-'):<6} {b.get('volid', '')!s:<70} {fmt_bytes(b.get('size'))}",
             "value": b,
         }
         for b in backups

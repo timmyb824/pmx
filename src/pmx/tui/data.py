@@ -6,7 +6,7 @@ display-ready strings, plus the raw fields needed to drive actions
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 from pmx.client import ProxmoxClient
@@ -48,14 +48,12 @@ def fmt_time(value: Any) -> str:
     """Format a unix timestamp as 'YYYY-MM-DD HH:MM:SS'."""
     if not isinstance(value, (int, float)):
         return "-"
-    return datetime.fromtimestamp(value).strftime("%Y-%m-%d %H:%M:%S")
+    return datetime.fromtimestamp(value, tz=UTC).astimezone().strftime("%Y-%m-%d %H:%M:%S")
 
 
 def fmt_cpu(value: Any) -> str:
     """Format a CPU usage fraction as a percentage."""
-    if not isinstance(value, (int, float)):
-        return "-"
-    return f"{float(value) * 100:.1f}%"
+    return f"{float(value) * 100:.1f}%" if isinstance(value, (int, float)) else "-"
 
 
 def fetch_nodes(client: ProxmoxClient) -> list[dict]:
@@ -105,7 +103,7 @@ def fetch_tasks(client: ProxmoxClient, limit: int = TASK_LIMIT) -> list[dict]:
             "node": str(t.get("node", "")),
             "user": str(t.get("user", "")),
             "started": fmt_time(t.get("starttime")),
-            "status": str(t.get("status") or ("running" if not t.get("endtime") else "-")),
+            "status": str(t.get("status") or ("-" if t.get("endtime") else "running")),
         }
         for t in tasks
     ]

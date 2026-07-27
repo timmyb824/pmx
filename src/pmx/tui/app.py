@@ -1,5 +1,7 @@
 """Textual k9s-style dashboard: nodes/VMs/CTs/tasks panes with live refresh."""
 
+from typing import ClassVar
+
 from rich.text import Text
 from textual import work
 from textual.app import App, ComposeResult
@@ -52,7 +54,7 @@ def _cell(row: dict, key: str) -> Text | str:
 class ConfirmScreen(ModalScreen[bool]):
     """A modal yes/no confirmation dialog."""
 
-    BINDINGS = [
+    BINDINGS: ClassVar[list[Binding]] = [
         Binding("y", "confirm", "Yes"),
         Binding("n", "cancel", "No"),
         Binding("escape", "cancel", "No", show=False),
@@ -103,7 +105,7 @@ class PmxTuiApp(App[None]):
     }
     """
 
-    BINDINGS = [
+    BINDINGS: ClassVar[list[Binding]] = [
         Binding("1", "show_pane('nodes')", "Nodes"),
         Binding("2", "show_pane('vms')", "VMs"),
         Binding("3", "show_pane('cts')", "CTs"),
