@@ -45,10 +45,10 @@ TASK_COLUMNS: list[tuple[str, str]] = [
 
 
 def fmt_time(value: Any) -> str:
-    """Format a unix timestamp as 'YYYY-MM-DD HH:MM:SS'."""
+    """Format a unix timestamp as 'YYYY-MM-DD HH:MM:SS UTC'."""
     if not isinstance(value, (int, float)):
         return "-"
-    return datetime.fromtimestamp(value, tz=UTC).astimezone().strftime("%Y-%m-%d %H:%M:%S")
+    return datetime.fromtimestamp(value, tz=UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
 
 
 def fmt_cpu(value: Any) -> str:

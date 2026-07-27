@@ -14,10 +14,10 @@ UPID_ARG = typer.Argument(..., help="Task UPID.")
 
 
 def _fmt_time(value: object) -> str:
-    """Format a unix timestamp for display."""
+    """Format a unix timestamp as 'YYYY-MM-DD HH:MM:SS UTC'."""
     if not isinstance(value, (int, float)):
         return "-"
-    return datetime.fromtimestamp(value, tz=UTC).astimezone().strftime("%Y-%m-%d %H:%M:%S")
+    return datetime.fromtimestamp(value, tz=UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
 
 
 @app.command("ls")
