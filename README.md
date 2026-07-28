@@ -101,7 +101,7 @@ pmx task log <UPID>
 pmx task wait <UPID>
 
 # Scripting
-pmx vm ls -o json | jq '.[] | select(.status=="running") | .vmid'
+pmx -o json vm ls | jq '.[] | select(.status=="running") | .vmid'
 pmx -y vm stop 101 --no-wait
 ```
 
@@ -142,6 +142,14 @@ uv run ruff check .
 
 - ~~**Phase 2** — `pmx tui`: a k9s-style live dashboard (Textual)~~ ✅
 - **Phase 3** — `vm create` / `ct create` wizards, ISO and container template downloads
+
+## ⚠️ Notice & Disclaimer
+
+pmx is distributed under an "as-is" basis with no express or implied warranties. The maintainers are not responsible for broken setups, lost data, system downtime, or host misconfigurations resulting from its deployment or usage.
+
+Always validate commands and workflows in a safe test environment first.
+
+Proxmox is a trademark of Proxmox Server Solutions GmbH. This project is independently developed and has no official connection to or endorsement from Proxmox Server Solutions GmbH.
 
 ## License
 
