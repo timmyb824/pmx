@@ -28,6 +28,8 @@
     "uv.lock",
     "*ruff.toml",
     "*pytest.ini",
+    "*pytest.toml",
+    "*.python-version",
     "*tox.ini",
     "*setup.cfg",
     "*conftest.py"
