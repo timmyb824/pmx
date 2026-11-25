@@ -18,8 +18,16 @@
     "security": { "security": "opus" }
   },
   "protected_paths": [
-    "factory/checks.sh",
-    "factory/config.json"
+    "factory/*",
+    ".claude/*",
+    "pyproject.toml",
+    "uv.lock",
+    "ruff.toml",
+    ".ruff.toml",
+    "pytest.ini",
+    "tox.ini",
+    "setup.cfg",
+    "*conftest.py"
   ],
   "ports": { "base": 5100, "step": 10 },
   "prices_usd_per_mtok": {

@@ -36,3 +36,8 @@ open http://localhost:8000/dashboard.html.
 Each job works in its own git worktree, a full checkout of the repo at
 `.worktrees/<job-id>` (gitignored). A tool run from the repo root that doesn't
 read `.gitignore` sees those copies too; exclude `.worktrees/` in its config.
+
+The gate fails any branch that adds, changes or deletes `factory/*`, `.claude/*`,
+`pyproject.toml`, `uv.lock`, ruff/pytest config or a `conftest.py`
+(`protected_paths` in `factory/config.json`). A job that truly needs one of these
+escalates to a human.

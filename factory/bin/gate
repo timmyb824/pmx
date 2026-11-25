@@ -8,8 +8,8 @@ Usage:
 
 The gate runs the main checkout's factory/checks.sh inside the job's worktree,
 so a branch can't change the checks it is judged by. It also fails when the
-branch modifies or deletes a file matching config.json `protected_paths`
-(fnmatch patterns, where `*` also matches `/`). Adding new files is fine.
+branch adds, modifies or deletes a file matching config.json `protected_paths`
+(fnmatch patterns, where `*` also matches `/`).
 """
 
 import fnmatch
@@ -39,16 +39,15 @@ def git(worktree, *args):
 
 
 def protected_changes(worktree):
-    """Existing files under protected_paths that the branch modified or deleted."""
+    """Files under protected_paths that the branch added, modified, renamed or deleted."""
     diff = git(worktree, "diff", "--name-status", f"origin/{CONFIG['base_branch']}...HEAD")
     hits = []
     for line in diff.splitlines():
         status, *paths = line.split("\t")
-        if status.startswith("A"):
-            continue
-        old = paths[0]  # for renames and copies, the original path
-        if any(fnmatch.fnmatch(old, pattern) for pattern in CONFIG["protected_paths"]):
-            hits.append(f"{status[0]} {old}")
+        # Added files count too: a new conftest.py or ruff.toml changes how checks run.
+        for name in paths:  # renames and copies list source and destination
+            if any(fnmatch.fnmatch(name, pattern) for pattern in CONFIG["protected_paths"]):
+                hits.append(f"{status[0]} {name}")
     return hits
 
 
