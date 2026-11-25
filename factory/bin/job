@@ -429,13 +429,16 @@ def advance(job, stage):
         require(not git(job, "status", "--porcelain").stdout.strip(), "the worktree has uncommitted changes")
         require(int(git(job, "rev-list", "--count", f"origin/{BASE}..HEAD").stdout) > 0,
                 f"{job['branch']} has no commits on top of origin/{BASE}")
-        git(job, "fetch", "origin", job["branch"], check=False)
-        head = git(job, "rev-parse", "HEAD").stdout.strip()
-        res = git(job, "rev-parse", f"origin/{job['branch']}", check=False)
-        remote = res.stdout.strip() if res.returncode == 0 else ""
-        require(head == remote, f"{job['branch']} isn't pushed: local {head[:7]}, origin {remote[:7] or 'missing'}")
+        # The script pushes and opens the PR, never the builder, so the agent needs no push or `gh pr create` permission.
+        require(re.fullmatch(r"factory/[A-Za-z0-9._-]+", job["branch"]), f"unexpected branch name {job['branch']!r}")
+        git(job, "push", "-u", "origin", job["branch"])
         if not job["pr"]:
             prs = gh_json("pr", "list", "--head", job["branch"], "--state", "open", "--json", "number,url")
+            if not prs:
+                summary = section(d / "build.md", "Summary") or ""
+                gh("pr", "create", "--draft", "--base", BASE, "--head", job["branch"],
+                   "--title", job["title"], "--body", f"Closes #{job['issue']}\n\n{summary}")
+                prs = gh_json("pr", "list", "--head", job["branch"], "--state", "open", "--json", "number,url")
             require(len(prs) == 1, f"expected one open PR from {job['branch']}, found {len(prs)}")
             job["pr"], job["pr_url"] = prs[0]["number"], prs[0]["url"]
 

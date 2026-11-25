@@ -25,7 +25,7 @@ intake (opus)      → ACCEPT (scope possibly changed) | NEEDS-INFO | REJECT, po
 route (script)     → reviewers + models from risk/surfaces via config.json
 worktree           → factory/<job-id> from origin/<base>
 spec-writer (opus) → spec.md
-builder (opus)     → commits; the first push opens a draft PR "Closes #<n>"
+builder (opus)     → commits; `job advance <id> gate` pushes and opens the draft PR "Closes #<n>"
 gate (script)      → checks.sh; FAIL → builder gets the log, no reviewers spawned
 reviewers (routed) → parallel, WAIT FOR ALL; CHANGES → builder → gate → reviewers
 approver (opus)    → APPROVE: sync origin/<base>, gate, gh pr merge

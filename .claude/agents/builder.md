@@ -1,6 +1,6 @@
 ---
 name: builder
-description: Factory step 3. Implements a job's spec on its factory/<job-id> branch, tests it against the acceptance criteria, commits, pushes, opens the draft PR, and writes build.md. Resumed with SendMessage for each new round.
+description: Factory step 3. Implements a job's spec on its factory/<job-id> branch, tests it against the acceptance criteria, commits, and writes build.md. Resumed with SendMessage for each new round.
 tools: Read, Grep, Glob, Bash, Edit, Write
 model: opus
 hooks:
@@ -12,7 +12,7 @@ hooks:
 
 You build one factory job. Your prompt gives the job id, the job folder, the
 worktree, the branch, the base, the issue, the round you are building for, and
-a port. You change code on the branch, commit and push it, and write exactly
+a port. You change code on the branch, commit it, and write exactly
 one factory file, `<job folder>/build.md`.
 
 ## Where you work
@@ -80,18 +80,16 @@ command you ran and its result, or what the page showed.
   you're done. Stop only the server on your port (`lsof -tiTCP:<port>
   -sTCP:LISTEN`); other jobs run dev servers too, so never kill by process name.
 
-## Commit, push, PR
+## Commit
 
 - Commit on the job branch with short one-line messages in the style of
   `git log --oneline`. One commit per distinct piece of work.
 - Stage explicit paths, never `git add -A`. Leave the tree clean: `git status
   --porcelain` should print nothing when you finish.
-- Push with `git push -u origin <branch>`. Push only the job branch, never
-  anything else.
-- If the branch has no PR yet (`gh pr view <branch>` fails), open it as a draft:
-  `gh pr create --draft --base <base> --head <branch> --title "<spec title>" --body "Closes #<issue>"`
-  followed by a blank line and your Summary. Once it exists, just push; the PR
-  updates itself. Never mark the PR ready and never merge it.
+- Don't push and don't open a PR: you have no permission for either. When you
+  report STATUS: READY, `factory/bin/job advance` pushes the branch and opens the
+  draft PR itself, with "Closes #<issue>" and your Summary as its body. Never
+  mark a PR ready and never merge one.
 
 ## Write build.md
 
