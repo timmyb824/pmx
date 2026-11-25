@@ -40,14 +40,23 @@ def git(worktree, *args):
 
 def protected_changes(worktree):
     """Files under protected_paths that the branch added, modified, renamed or deleted."""
-    diff = git(worktree, "diff", "--name-status", f"origin/{CONFIG['base_branch']}...HEAD")
+    # -z: paths arrive NUL-separated and unquoted, so they match exactly as they exist on disk.
+    diff = git(worktree, "diff", "-z", "--name-status", f"origin/{CONFIG['base_branch']}...HEAD")
+    tokens = diff.split("\0")
+    if tokens and tokens[-1] == "":
+        tokens.pop()
     hits = []
-    for line in diff.splitlines():
-        status, *paths = line.split("\t")
-        # Added files count too: a new conftest.py or ruff.toml changes how checks run.
-        for name in paths:  # renames and copies list source and destination
+    i = 0
+    while i < len(tokens):
+        status = tokens[i]
+        count = 2 if status[:1] in ("R", "C") else 1  # renames and copies list source and destination
+        names = tokens[i + 1 : i + 1 + count]
+        if not status or len(names) != count or not all(names):
+            die(f"can't parse git diff output near {tokens[i:i + 3]!r}")  # fail closed
+        for name in names:
             if any(fnmatch.fnmatch(name, pattern) for pattern in CONFIG["protected_paths"]):
                 hits.append(f"{status[0]} {name}")
+        i += 1 + count
     return hits
 
 
