@@ -96,7 +96,7 @@ pmx storage content local --node pve1 --type iso
 pmx pool create prod --comment "Production"
 
 # Tasks
-pmx task ls --running
+pmx task ls --running   # table ends with a running-task count line, e.g. "3 running tasks"
 pmx task log <UPID>
 pmx task wait <UPID>
 

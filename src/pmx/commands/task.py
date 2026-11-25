@@ -28,6 +28,7 @@ def ls(
     """List recent cluster tasks."""
     with get_client() as client:
         tasks = client.get("/cluster/tasks")
+        running_count = sum(1 for t in tasks if not t.get("endtime"))
         if running:
             tasks = [t for t in tasks if not t.get("endtime")]
         tasks = sorted(tasks, key=lambda t: t.get("starttime", 0), reverse=True)[:limit]
@@ -57,6 +58,8 @@ def ls(
             title="Tasks",
             as_json=app_state.output_json,
         )
+        if not app_state.output_json:
+            console.print(f"{running_count} running task{'' if running_count == 1 else 's'}")
 
 
 @app.command("status")
