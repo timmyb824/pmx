@@ -86,23 +86,21 @@ class TestTaskLsRunningCount:
         fake_tasks(FIVE_TASKS_THREE_RUNNING)
         result = runner.invoke(app, ["task", "ls"])
         assert result.exit_code == 0, result.output
-        assert result.output.count("3 running tasks") == 1
-        assert result.output.rstrip().endswith("3 running tasks")
+        assert result.output.strip().splitlines()[-1].strip() == "3 running tasks"
 
     def test_running_count_singular(self, fake_tasks: Callable[[list[dict]], None]) -> None:
         """One running task uses the singular wording."""
         fake_tasks(FIVE_TASKS_THREE_RUNNING[2:])
         result = runner.invoke(app, ["task", "ls"])
         assert result.exit_code == 0, result.output
-        assert "1 running task" in result.output
-        assert "1 running tasks" not in result.output
+        assert result.output.strip().splitlines()[-1].strip() == "1 running task"
 
     def test_running_count_zero(self, fake_tasks: Callable[[list[dict]], None]) -> None:
         """No running tasks still prints `0 running tasks`."""
         fake_tasks(FIVE_TASKS_THREE_RUNNING[3:])
         result = runner.invoke(app, ["task", "ls"])
         assert result.exit_code == 0, result.output
-        assert "0 running tasks" in result.output
+        assert result.output.strip().splitlines()[-1].strip() == "0 running tasks"
 
     def test_running_count_ignores_limit(self, fake_tasks: Callable[[list[dict]], None]) -> None:
         """`--limit 1` trims the table but not the count."""
